@@ -2,10 +2,6 @@
 import random
 import pygame
 
-ROW, COL = 20, 10
-SIZE = 40
-RES = COL * SIZE, ROW * SIZE
-FPS = 60
 
 class TetrisFactory:
     def __init__(self):
@@ -22,7 +18,7 @@ class TetrisPiece:
     def getRect(self):
         rect = []
         for x, y in self.shape:
-            rect.append(pygame.Rect(x + COL // 2, y + 1, 1,1))
+            rect.append(pygame.Rect(x + 10 // 2, y + 1, 1,1))
         return rect
 
     

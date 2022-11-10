@@ -1,9 +1,8 @@
 import pygame
-import random
-
 from copy import deepcopy
 
 from TetrisFactory import TetrisFactory
+
 
 ROW, COL = 20, 10
 SIZE = 40
@@ -118,15 +117,22 @@ while True:
         if count < COL:
             line -= 1
     
-    #game over
-    for col in range(COL):
-        if board[0][col]:
-            quit()
+
 
 
     draw_grid()
     draw_figure()
     draw_board()
+
+    #game over
+    for col in range(COL):
+        if board[0][col]:
+            screen.fill(pygame.Color('black'))
+            font = pygame.font.SysFont('Arial', 50)
+            text = font.render('Game Over', True, (255, 255, 255))
+            text_rect = text.get_rect(center=(RES[0] / 2, RES[1] / 2))
+            screen.blit(text, text_rect)
+
     pygame.display.flip()
     clock.tick(FPS)
 
