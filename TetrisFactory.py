@@ -1,4 +1,3 @@
-#piece of tetris factory method
 import random
 import pygame
 
@@ -62,4 +61,5 @@ class TetrisPiece6(TetrisPiece):
 class TetrisPiece7(TetrisPiece):
     def __init__(self):
         super().__init__((255, 255, 255), [(0, 0), (0, -1), (0, 1), (-1, 0)])
+
 

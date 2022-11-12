@@ -1,3 +1,5 @@
+
+import sys
 import pygame
 from copy import deepcopy
 
@@ -7,20 +9,30 @@ from TetrisFactory import TetrisFactory
 ROW, COL = 20, 10
 SIZE = 40
 RES = COL * SIZE, ROW * SIZE
+DISPLAY = 750,850
 FPS = 60
 
 animation_count, animation_speed, animation_limit = 0, 60, 2000
 
 pygame.init()
 pygame.display.set_caption("Tetris")
-screen = pygame.display.set_mode(RES)
-clock = pygame.time.Clock()
+display = pygame.display.set_mode(DISPLAY)
+screen = pygame.Surface(RES)
+clock = pygame.time.Clock() 
 
 piece = TetrisFactory().getPiece()
 
 piece_rect = pygame.Rect(0, 0, SIZE-2, SIZE-2)
 
 board = [[0 for i in range(COL)] for j in range(ROW)]
+
+bg = pygame.image.load("score.jpg").convert()
+
+game_bc = pygame.image.load("bg.jpg").convert()
+
+bg = pygame.transform.smoothscale(bg, display.get_size())
+game_bc = pygame.transform.smoothscale(game_bc, screen.get_size())
+
 
 
 
@@ -61,10 +73,16 @@ def quit():
     pygame.quit()
     sys.exit()
     
+
+
+    
 while True:
     rotate = False
     dx,dy = 0,0
-    screen.fill(pygame.Color('black'))
+
+    display.blit(bg, (0,0))
+    display.blit(screen, (20,20))
+    screen.blit(game_bc, (0,0)) 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
                 quit()
@@ -102,7 +120,7 @@ while True:
     figure_old = deepcopy(piece)
     if rotate:
         piece.rotate()
-        rotate = False
+        #rotate = False
         if check_collision():
             piece = figure_old
 
@@ -122,7 +140,7 @@ while True:
 
     draw_grid()
     draw_figure()
-    draw_board()
+    draw_board()    
 
     #game over
     for col in range(COL):
@@ -135,12 +153,12 @@ while True:
 
     pygame.display.flip()
     clock.tick(FPS)
+ 
 
 
 
-    
 
-  
+
 
 
 
