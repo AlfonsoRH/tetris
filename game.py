@@ -158,7 +158,6 @@ while True:
     figure_old = deepcopy(piece)
     if rotate:
         piece.rotate()
-        #rotate = False
         if check_collision():
             piece = figure_old
 
