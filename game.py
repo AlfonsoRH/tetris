@@ -2,7 +2,7 @@
 import sys
 import pygame
 from copy import deepcopy
-
+from abc import ABC, abstractmethod
 from TetrisFactory import TetrisFactory
 
 
@@ -12,6 +12,7 @@ RES = COL * SIZE, ROW * SIZE
 DISPLAY = 750,850
 FPS = 60
 
+
 animation_count, animation_speed, animation_limit = 0, 60, 2000
 
 pygame.init()
@@ -20,7 +21,7 @@ display = pygame.display.set_mode(DISPLAY)
 screen = pygame.Surface(RES)
 clock = pygame.time.Clock() 
 
-piece = TetrisFactory().getPiece()
+piece,next_piece = TetrisFactory().getPiece(), TetrisFactory().getPiece()
 
 piece_rect = pygame.Rect(0, 0, SIZE-2, SIZE-2)
 
@@ -33,8 +34,13 @@ game_bc = pygame.image.load("bg.jpg").convert()
 bg = pygame.transform.smoothscale(bg, display.get_size())
 game_bc = pygame.transform.smoothscale(game_bc, screen.get_size())
 
+font = pygame.font.SysFont("Arial", 65)
+font1 = pygame.font.SysFont("Arial", 45)
 
+title_tetris = font.render("TETRIS", True, (255, 255, 255))
 
+score, lines = 0, 0
+scores = {0:0, 1:100, 2:300, 3:700, 4:1500}
 
 def draw_grid():
     for y in range(ROW):
@@ -67,22 +73,53 @@ def check_collision():
             return True
     return False
 
- 
+
 
 def quit():
     pygame.quit()
     sys.exit()
     
 
+""" Proxy de loggeo para manejar el record"""
+class Proxy:
+
+    @classmethod
+    def get_record(cls):
+        """ Obtiene el record del archivo record.txt"""
+        try:
+            with open("record.txt", "r") as f:
+                return f.readline()
+        except FileNotFoundError:
+            with open("record.txt", "w") as f:
+                f.write("0")
+
+    @classmethod
+    def set_record(cls,record,score):
+        """ Setea el record en el archivo record.txt"""
+        r = max(int(record), score)
+        with open("record.txt", "w") as f:
+            f.write(str(r))
+
+
+
+while True:
 
     
-while True:
+   
+    record = Proxy.get_record()
+
+
     rotate = False
     dx,dy = 0,0
 
     display.blit(bg, (0,0))
     display.blit(screen, (20,20))
     screen.blit(game_bc, (0,0)) 
+
+    
+
+    for i in range(lines):
+        pygame.time.wait(200)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
                 quit()
@@ -113,7 +150,8 @@ while True:
         if check_collision():
             for i in range(4):
                 board[figure_old.getRect()[i].y][figure_old.getRect()[i].x] = figure_old.color
-            piece = TetrisFactory().getPiece()
+            piece = next_piece
+            next_piece = TetrisFactory().getPiece()
             animation_limit = 2000
             
     #rotate
@@ -125,7 +163,7 @@ while True:
             piece = figure_old
 
     #check lines
-    line = ROW - 1
+    line,lines = ROW - 1, 0
     for row in range(ROW-1, -1, -1):
         count = 0
         for col in range(COL):
@@ -134,22 +172,39 @@ while True:
             board[line][col] = board[row][col]
         if count < COL:
             line -= 1
+        else:
+            lines += 1
+            animation_limit +=1
     
+    score += scores[lines]
 
 
 
     draw_grid()
     draw_figure()
+    for i in range(4):
+        piece_rect.x = next_piece.getRect()[i].x * SIZE + 380
+        piece_rect.y = next_piece.getRect()[i].y * SIZE + 185
+        pygame.draw.rect(display, next_piece.color, piece_rect)
     draw_board()    
+   
+
+    display.blit( title_tetris, (485,10))
+    score_text = font1.render("SCORE", True, (255, 255, 255))
+    display.blit( score_text, (450,740))
+    display.blit(font.render(str(score), True, (255, 255, 255)), (450, 780))
+    display.blit(font1.render("RECORD", True, (255, 255, 255)), (450, 580))
+    display.blit(font.render(record, True, (255, 255, 255)), (450, 620))
 
     #game over
     for col in range(COL):
         if board[0][col]:
+            Proxy.set_record(record, score)
             screen.fill(pygame.Color('black'))
-            font = pygame.font.SysFont('Arial', 50)
-            text = font.render('Game Over', True, (255, 255, 255))
-            text_rect = text.get_rect(center=(RES[0] / 2, RES[1] / 2))
-            screen.blit(text, text_rect)
+            board = [[0 for i in range(COL)] for j in range(ROW)]
+            animation_count, animation_limit,animation_speed = 0, 2000, 60
+            score = 0
+          
 
     pygame.display.flip()
     clock.tick(FPS)

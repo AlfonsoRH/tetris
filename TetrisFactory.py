@@ -1,6 +1,9 @@
 import random
 import pygame
 
+#Aqui utilizamos el patron de Factory Method para construir las piezas del juego y regresarlas de manera aleatoria
+
+#Tenemos la clase principal que es TetrisPiece y de ella heredan las clases de las piezas del juego
 
 class TetrisFactory:
     def __init__(self):
@@ -8,6 +11,7 @@ class TetrisFactory:
 
     def getPiece(self):
         return random.choice(self.pieces)
+
 
 class TetrisPiece:
     def __init__(self, color, shape):
@@ -32,7 +36,6 @@ class TetrisPiece:
 
     def move(self, dx, dy):
         self.shape = [(x + dx, y + dy) for x, y in self.shape]
-
 
 class TetrisPiece1(TetrisPiece):
     def __init__(self):
